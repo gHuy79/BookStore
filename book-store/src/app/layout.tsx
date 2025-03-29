@@ -18,14 +18,16 @@ export const metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="vi">
-      
-      <body className={inter.className}>
-      <Header />
-        {children}
-      <Footer />
-      </body>
+      <body className={`${inter.className} bg-gradient-to-br from-white to-indigo-50 min-h-screen`}>
+        <Header />
 
-      
+        {/* 👇 Áp dụng padding và căn giữa toàn site */}
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+          {children}
+        </main>
+
+        <Footer />
+      </body>
     </html>
   );
 }

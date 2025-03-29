@@ -7,6 +7,8 @@ export type Book = {
   id: string;
   title: string;
   author: string;
+  categoryID: string;
+  description: string;
   image: string;
   price: number;
 };

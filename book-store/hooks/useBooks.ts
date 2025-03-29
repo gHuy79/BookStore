@@ -1,17 +1,7 @@
-// hooks/useBooks.ts
 import { useEffect, useState } from "react";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, query, orderBy } from "firebase/firestore";
 import { db } from "../lib/firebase";
-
-export type Book = {
-  id: string;
-  title: string;
-  author: string;
-  categoryID: string;
-  description: string;
-  image: string;
-  price: number;
-};
+import { Book } from "../types/book"; // ✅ Import kiểu Book từ file types
 
 export function useBooks() {
   const [books, setBooks] = useState<Book[]>([]);
@@ -19,11 +9,24 @@ export function useBooks() {
 
   useEffect(() => {
     async function fetchBooks() {
-      const querySnapshot = await getDocs(collection(db, "books"));
+      const booksQuery = query(collection(db, "books"), orderBy("createdAt", "desc"));
+      const querySnapshot = await getDocs(booksQuery);
       const fetchedBooks: Book[] = [];
+
       querySnapshot.forEach((doc) => {
-        fetchedBooks.push({ id: doc.id, ...doc.data() } as Book);
+        const data = doc.data();
+        fetchedBooks.push({
+          id: doc.id,
+          title: data.title || "Không có tiêu đề",
+          author: data.author || "Không rõ tác giả",
+          categoryID: data.categoryID || "",
+          categoryName: data.categoryName || "Chưa phân loại",
+          price: data.price || 0,
+          description: data.description || "",
+          coverImage: data.coverImage || "/default-book-cover.jpg", // 🔥 Dùng coverImage thay vì image
+        });
       });
+
       setBooks(fetchedBooks);
       setLoading(false);
     }

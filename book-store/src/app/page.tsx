@@ -10,13 +10,17 @@ export default function HomePage() {
   const { books, loading } = useBooks();
   const [searchTerm, setSearchTerm] = useState('');
 
+  // Lọc sách theo từ khóa tìm kiếm
   const filteredBooks = books.filter((book) =>
     book.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // Lấy tối đa 8 quyển sách đầu tiên
+  const newestBooks = filteredBooks.slice(0, 8);
+
   return (
     <main className="p-6 md:p-10 bg-gradient-to-br from-white to-indigo-50 min-h-screen">
-      {/* HERO SECTION */}
+      {/* HERO */}
       <section className="text-center py-10 bg-indigo-100 rounded-3xl mb-10 shadow-inner">
         <h1 className="text-4xl md:text-5xl font-extrabold text-indigo-700 mb-4 animate-pulse">
           📚 Khám phá Thư viện Sách Đỉnh Cao
@@ -43,16 +47,16 @@ export default function HomePage() {
         />
       </div>
 
-      {/* DANH SÁCH SÁCH */}
+      {/* SÁCH MỚI NHẤT */}
       <h2 className="text-2xl font-bold text-indigo-800 mb-4">📕 Sách mới nhất</h2>
 
       {loading ? (
         <p className="text-center">Đang tải sách...</p>
-      ) : filteredBooks.length === 0 ? (
+      ) : newestBooks.length === 0 ? (
         <p className="text-center text-gray-500">Không tìm thấy sách phù hợp.</p>
       ) : (
         <div id="book-list" className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {filteredBooks.map((book, index) => (
+          {newestBooks.map((book, index) => (
             <motion.div
               key={book.id}
               initial={{ opacity: 0, y: 40 }}
@@ -61,7 +65,7 @@ export default function HomePage() {
               className="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 flex flex-col"
             >
               <Image
-                src={book.image}
+                src={book.coverImage}
                 alt={book.title}
                 width={200}
                 height={300}
@@ -88,7 +92,7 @@ export default function HomePage() {
         </div>
       )}
 
-      {/* ƯU ĐÃI NỔI BẬT */}
+      {/* ƯU ĐÃI */}
       <section className="mt-20 text-center bg-yellow-50 p-10 rounded-3xl shadow-md">
         <h2 className="text-2xl md:text-3xl font-extrabold text-yellow-600 mb-4">
           🎁 Ưu đãi cực sốc tháng này!
@@ -103,7 +107,7 @@ export default function HomePage() {
         </Link>
       </section>
 
-      {/* TẠI SAO CHỌN CHÚNG TÔI */}
+      {/* LỢI ÍCH */}
       <section className="mt-20 text-center">
         <h2 className="text-2xl font-bold text-indigo-800 mb-4">🌟 Tại sao chọn chúng tôi?</h2>
         <div className="grid md:grid-cols-3 gap-6 text-gray-600 mt-6">

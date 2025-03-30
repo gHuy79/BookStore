@@ -44,7 +44,7 @@ export default function BooksPage() {
   // console.log('✅ filteredBooks:', filteredBooks);
 
   return (
-    <div className="space-y-10">
+    <div className="max-w-7xl mx-auto space-y-10">
       {/* TIÊU ĐỀ TRANG */}
       <section className="text-center">
         <h1 className="text-4xl md:text-5xl font-extrabold text-indigo-700">

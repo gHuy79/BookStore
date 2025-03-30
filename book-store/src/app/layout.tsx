@@ -22,7 +22,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Header />
 
         {/* 👇 Áp dụng padding và căn giữa toàn site */}
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <main className='bg-gradient-to-br from-white'>
           {children}
         </main>
 

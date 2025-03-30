@@ -6,24 +6,24 @@ import { loginWithEmail, loginWithGoogle } from '../../../lib/auth';
 import { auth } from '../../../lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { FirebaseError } from 'firebase/app';
+import { motion } from 'framer-motion';
+import { FaEnvelope, FaLock, FaGoogle } from 'react-icons/fa';
 
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [isMounted, setIsMounted] = useState(false); // Thêm biến kiểm tra
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
   useEffect(() => {
-    if (!isMounted) return; // Chỉ chạy nếu đã mounted
+    if (!isMounted) return;
     const unsub = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        router.push('/');
-      }
+      if (user) router.push('/');
     });
     return () => unsub();
   }, [isMounted]);
@@ -47,55 +47,70 @@ export default function LoginPage() {
     }
   };
 
-  if (!isMounted) return null; // Fix hydration mismatch
+  if (!isMounted) return null;
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
-      <div className="w-full max-w-md bg-white p-8 rounded-xl shadow-lg">
-        <h1 className="text-2xl font-bold text-center text-blue-700 mb-6">
-          Đăng nhập vào BookStore
+    <div className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-500 via-indigo-500 to-pink-500 overflow-hidden">
+      {/* Gradient moving background (optional animation) */}
+      <div className="absolute inset-0 animate-gradient-x bg-[length:200%_200%] z-0" />
+
+      {/* Animated Login Card */}
+      <motion.div
+        initial={{ opacity: 0, y: 50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: 'easeOut' }}
+        className="relative z-10 w-full max-w-md bg-white bg-opacity-90 rounded-2xl shadow-2xl p-8 backdrop-blur-md border border-white/30"
+      >
+        <h1 className="text-3xl font-extrabold text-center text-indigo-700 mb-6">
+          🔐 Đăng nhập BookStore
         </h1>
 
         {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
 
         <form onSubmit={handleLogin} className="space-y-4">
-          <input
-            type="email"
-            placeholder="Email"
-            className="w-full p-3 border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-          <input
-            type="password"
-            placeholder="Mật khẩu"
-            className="w-full p-3 border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
+          <div className="relative">
+            <FaEnvelope className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-400" />
+            <input
+              type="email"
+              placeholder="Email"
+              className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+          <div className="relative">
+            <FaLock className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-400" />
+            <input
+              type="password"
+              placeholder="Mật khẩu"
+              className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition"
+            className="w-full py-3 rounded-lg bg-gradient-to-r from-indigo-500 to-pink-500 text-white font-semibold hover:brightness-110 transition"
           >
-            Đăng nhập
+            🚀 Đăng nhập
           </button>
         </form>
 
-        <p className="text-sm text-center mt-4 text-gray-600">Hoặc đăng nhập bằng</p>
+        <p className="text-sm text-center mt-5 text-gray-600">— hoặc —</p>
 
         <button
           onClick={handleGoogle}
-          className="mt-3 w-full border border-gray-400 py-3 rounded-lg text-gray-700 hover:bg-gray-200 transition"
+          className="mt-4 w-full py-3 flex items-center justify-center border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 transition"
         >
-          Đăng nhập với Google
+          <FaGoogle className="mr-2" /> Đăng nhập bằng Google
         </button>
 
         <div className="text-sm text-center mt-6">
           <p>
             Chưa có tài khoản?{' '}
-            <a href="/register" className="text-blue-600 hover:underline">
+            <a href="/register" className="text-indigo-600 hover:underline font-medium">
               Đăng ký
             </a>
           </p>
@@ -105,7 +120,7 @@ export default function LoginPage() {
             </a>
           </p>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }

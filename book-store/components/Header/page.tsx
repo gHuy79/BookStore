@@ -98,7 +98,7 @@ export default function Header() {
               Đăng nhập
             </Link>
             <Link
-              href="/register"
+              href="/signup"
               className="text-white bg-gradient-to-r from-blue-500 to-indigo-500 px-4 py-2 rounded-lg font-medium hover:opacity-90 transition"
             >
               Đăng ký
@@ -119,7 +119,7 @@ export default function Header() {
             {menuOpen && (
               <div className="absolute right-0 mt-3 w-44 bg-white dark:bg-gray-800 rounded-xl shadow-lg border dark:border-gray-700 z-50 animate-fade-in-up">
                 <Link
-                  href="/account"
+                  href="/profile"
                   className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-sm rounded-t-xl"
                   onClick={() => setMenuOpen(false)}
                 >

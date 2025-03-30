@@ -19,7 +19,8 @@ export default function HomePage() {
   const newestBooks = filteredBooks.slice(0, 8);
 
   return (
-    <main className="p-6 md:p-10 bg-gradient-to-br from-white to-indigo-50 min-h-screen">
+    <main className="max-w-7xl mx-auto p-6 md:p-10 min-h-screen">
+      
       {/* HERO */}
       <section className="text-center py-10 bg-indigo-100 rounded-3xl mb-10 shadow-inner">
         <h1 className="text-4xl md:text-5xl font-extrabold text-indigo-700 mb-4 animate-pulse">

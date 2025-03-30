@@ -1,7 +1,7 @@
 // app/layout.tsx
 import './globals.css';
-import Header from '../../components/Header/page';
-import Footer from '../../components/Footer/page';
+import Header from '@/components/Header/page';
+import Footer from '@/components/Footer/page';
 import { Inter } from 'next/font/google';
 
 const inter = Inter({

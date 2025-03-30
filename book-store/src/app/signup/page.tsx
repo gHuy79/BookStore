@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../../../lib/firebase';
+import { doc, setDoc } from 'firebase/firestore';
+import { auth, db } from '@/lib/firebase';
 import { FirebaseError } from 'firebase/app';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
@@ -11,7 +12,7 @@ import { motion } from 'framer-motion';
 export default function RegisterPage() {
   const router = useRouter();
 
-  const [fullName, setFullName] = useState('');
+  const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [address, setAddress] = useState('');
@@ -40,7 +41,21 @@ export default function RegisterPage() {
     }
 
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
+      // 1. Tạo tài khoản
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      // 2. Lưu dữ liệu người dùng vào Firestore
+      await setDoc(doc(db, 'users', user.uid), {
+        uid: user.uid,
+        name,
+        phone,
+        email,
+        address,
+        createdAt: new Date().toISOString(),
+        role: 'user' // phân quyền cơ bản
+      });
+
       router.push('/');
     } catch (err) {
       const error = err as FirebaseError;
@@ -52,10 +67,8 @@ export default function RegisterPage() {
 
   return (
     <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gray-100">
-      {/* 🔮 Gradient Background */}
       <div className="absolute inset-0 bg-gradient-to-tr from-blue-500 via-purple-500 to-pink-500 bg-200% animate-gradient-x z-0" />
 
-      {/* 🌟 Register Card */}
       <motion.div
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
@@ -66,95 +79,79 @@ export default function RegisterPage() {
           Tạo tài khoản mới
         </h1>
 
-        {error && (
-          <p className="text-center text-red-600 font-medium mb-4">{error}</p>
-        )}
+        {error && <p className="text-center text-red-600 font-medium mb-4">{error}</p>}
 
         <form onSubmit={handleRegister} className="space-y-5">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Họ và tên
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Họ và tên</label>
               <input
                 type="text"
                 placeholder="Nguyễn Văn A"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
+                value={name}
+                onChange={(e) => setName(e.target.value)}
                 required
-                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
               />
             </div>
-
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Số điện thoại
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Số điện thoại</label>
               <input
                 type="tel"
                 placeholder="0123456789"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 required
-                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Email
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
             <input
               type="email"
               placeholder="example@gmail.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Địa chỉ
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Địa chỉ</label>
             <input
               type="text"
               placeholder="123 Đường ABC, Quận 1"
               value={address}
               onChange={(e) => setAddress(e.target.value)}
               required
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Mật khẩu
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Mật khẩu</label>
               <input
                 type="password"
                 placeholder="********"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
               />
             </div>
-
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Nhập lại mật khẩu
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Nhập lại mật khẩu</label>
               <input
                 type="password"
                 placeholder="********"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
-                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
               />
             </div>
           </div>
@@ -169,10 +166,7 @@ export default function RegisterPage() {
             />
             <span>
               Tôi đồng ý với{' '}
-              <a
-                href="/terms"
-                className="text-blue-600 hover:underline font-medium"
-              >
+              <a href="/terms" className="text-blue-600 hover:underline font-medium">
                 điều khoản sử dụng
               </a>
             </span>

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { getDocs, collection } from 'firebase/firestore';
-import { db } from '../lib/firebase';
-import { Book, Category } from '../types/book';
+import { db } from '@/lib/firebase';
+import { Book, Category } from '@/types/book';
 
 export function useBooksWithCategory() {
   const [books, setBooks] = useState<Book[]>([]);

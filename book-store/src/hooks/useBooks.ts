@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { collection, getDocs, query, orderBy } from "firebase/firestore";
-import { db } from "../lib/firebase";
-import { Book } from "../types/book"; // ✅ Import kiểu Book từ file types
+import { db } from "@/lib/firebase"; // ✅ Import db từ firebase
+import { Book } from "@/types/book"; // ✅ Import kiểu Book từ file types
 
 export function useBooks() {
   const [books, setBooks] = useState<Book[]>([]);

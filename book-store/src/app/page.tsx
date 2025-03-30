@@ -1,6 +1,6 @@
 'use client';
 
-import { useBooks } from '../../hooks/useBooks';
+import { useBooks } from '@/hooks/useBooks';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';

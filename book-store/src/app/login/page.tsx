@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { loginWithEmail, loginWithGoogle } from '../../../lib/auth';
-import { auth } from '../../../lib/firebase';
-import { onAuthStateChanged } from 'firebase/auth';
+import { loginWithEmail, loginWithGoogle } from '@/lib/auth';
+import { auth } from '@/lib/firebase';
+// import { onAuthStateChanged } from 'firebase/auth';
 import { FirebaseError } from 'firebase/app';
 import { motion } from 'framer-motion';
 import { FaEnvelope, FaLock, FaGoogle } from 'react-icons/fa';
@@ -20,27 +20,73 @@ export default function LoginPage() {
     setIsMounted(true);
   }, []);
 
-  useEffect(() => {
-    if (!isMounted) return;
-    const unsub = onAuthStateChanged(auth, (user) => {
-      if (user) router.push('/');
-    });
-    return () => unsub();
-  }, [isMounted]);
+  // useEffect(() => {
+  //   if (!isMounted) return;
+  //   const unsub = onAuthStateChanged(auth, (user) => {
+  //     if (user) router.push('/');
+  //   });
+  //   return () => unsub();
+  // }, [isMounted]);
+
+  // const handleLogin = async (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   try {
+  //     await loginWithEmail(email, password);
+  //   } catch (err) {
+  //     const error = err as FirebaseError;
+  //     setError(error.message);
+  //   }
+  // };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       await loginWithEmail(email, password);
+  
+      // Sau khi đăng nhập thành công
+      const user = auth.currentUser;
+      if (user) {
+        const token = await user.getIdToken();
+        await fetch('/api/session', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token }),
+        });
+  
+        router.push('/'); // hoặc '/admin'
+      }
     } catch (err) {
       const error = err as FirebaseError;
       setError(error.message);
     }
   };
+  
+
+  // const handleGoogle = async () => {
+  //   try {
+  //     await loginWithGoogle();
+  //   } catch (err) {
+  //     const error = err as FirebaseError;
+  //     setError(error.message);
+  //   }
+  // };
 
   const handleGoogle = async () => {
     try {
       await loginWithGoogle();
+  
+      // Sau khi đăng nhập thành công
+      const user = auth.currentUser;
+      if (user) {
+        const token = await user.getIdToken();
+        await fetch('/api/session', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token }),
+        });
+  
+        router.push('/');
+      }
     } catch (err) {
       const error = err as FirebaseError;
       setError(error.message);
@@ -110,7 +156,7 @@ export default function LoginPage() {
         <div className="text-sm text-center mt-6">
           <p>
             Chưa có tài khoản?{' '}
-            <a href="/register" className="text-indigo-600 hover:underline font-medium">
+            <a href="/signup" className="text-indigo-600 hover:underline font-medium">
               Đăng ký
             </a>
           </p>

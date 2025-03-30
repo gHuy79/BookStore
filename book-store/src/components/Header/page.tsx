@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { getAuth, onAuthStateChanged, signOut, User } from 'firebase/auth';
-import { app } from '../../lib/firebase';
+import { app } from '@/lib/firebase';
 import {
   FaBookOpen,
   FaUserCircle,
@@ -11,10 +11,12 @@ import {
   FaMoon,
   FaSun,
   FaSearch,
+  FaCog,
 } from 'react-icons/fa';
 
 export default function Header() {
   const [user, setUser] = useState<User | null>(null);
+  const [role, setRole] = useState<string | null>(null); // NEW
   const [menuOpen, setMenuOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
@@ -22,10 +24,24 @@ export default function Header() {
 
   const auth = getAuth(app);
 
+  // Check login + get role
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
+
+      if (currentUser) {
+        try {
+          const res = await fetch(`/api/user-role?uid=${currentUser.uid}`);
+          const data = await res.json();
+          setRole(data.role); // "admin" | "user"
+        } catch (error) {
+          console.error('Error fetching role:', error);
+        }
+      } else {
+        setRole(null);
+      }
     });
+
     return () => unsubscribe();
   }, [auth]);
 
@@ -44,7 +60,6 @@ export default function Header() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Chuyển hướng đến trang tìm kiếm với từ khóa
     console.log('Searching for:', searchQuery);
   };
 
@@ -68,25 +83,20 @@ export default function Header() {
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
-        <button type="submit" className="text-gray-500 hover:text-blue-600 dark:text-gray-300" aria-label="Tài khoản người dùng">
+        <button aria-label="Tìm kiếm" type="submit" className="text-gray-500 hover:text-blue-600 dark:text-gray-300">
           <FaSearch />
         </button>
       </form>
 
       {/* Navigation */}
       <nav className="space-x-4 hidden md:flex items-center">
-        <Link href="/books" className="text-gray-700 dark:text-gray-200 hover:text-blue-600 font-medium">
-          Sách
-        </Link>
-        <Link href="/cart" className="text-gray-700 dark:text-gray-200 hover:text-blue-600 font-medium">
-          Giỏ hàng
-        </Link>
+        <Link href="/books" className="text-gray-700 dark:text-gray-200 hover:text-blue-600 font-medium">Sách</Link>
+        <Link href="/cart" className="text-gray-700 dark:text-gray-200 hover:text-blue-600 font-medium">Giỏ hàng</Link>
 
         {/* Dark mode toggle */}
         <button
           onClick={() => setDarkMode(!darkMode)}
           className="text-gray-600 dark:text-yellow-300 hover:text-blue-600 transition"
-          title="Chuyển chế độ sáng/tối"
         >
           {darkMode ? <FaSun /> : <FaMoon />}
         </button>
@@ -94,15 +104,8 @@ export default function Header() {
         {/* Auth */}
         {!user ? (
           <>
-            <Link href="/login" className="text-blue-600 font-medium hover:underline">
-              Đăng nhập
-            </Link>
-            <Link
-              href="/signup"
-              className="text-white bg-gradient-to-r from-blue-500 to-indigo-500 px-4 py-2 rounded-lg font-medium hover:opacity-90 transition"
-            >
-              Đăng ký
-            </Link>
+            <Link href="/login" className="text-blue-600 font-medium hover:underline">Đăng nhập</Link>
+            <Link href="/signup" className="text-white bg-gradient-to-r from-blue-500 to-indigo-500 px-4 py-2 rounded-lg font-medium hover:opacity-90 transition">Đăng ký</Link>
           </>
         ) : (
           <div className="relative">
@@ -117,10 +120,20 @@ export default function Header() {
             </button>
 
             {menuOpen && (
-              <div className="absolute right-0 mt-3 w-44 bg-white dark:bg-gray-800 rounded-xl shadow-lg border dark:border-gray-700 z-50 animate-fade-in-up">
+              <div className="absolute right-0 mt-3 w-48 bg-white dark:bg-gray-800 rounded-xl shadow-lg border dark:border-gray-700 z-50 animate-fade-in-up">
+                {role === 'admin' && (
+                  <Link
+                    href="/admin/dashboard"
+                    className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-sm border-b border-gray-200 dark:border-gray-700"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    <FaCog className="inline-block mr-2" />
+                    Trang quản trị
+                  </Link>
+                )}
                 <Link
                   href="/profile"
-                  className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-sm rounded-t-xl"
+                  className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-sm"
                   onClick={() => setMenuOpen(false)}
                 >
                   Tài khoản
@@ -137,20 +150,16 @@ export default function Header() {
         )}
       </nav>
 
-      {/* Mobile menu icon */}
+      {/* Mobile Menu */}
       <div className="md:hidden flex items-center gap-4">
-        <button
-          onClick={() => setDarkMode(!darkMode)}
-          className="text-gray-700 dark:text-yellow-300 hover:text-blue-600"
-        >
+        <button onClick={() => setDarkMode(!darkMode)} className="text-gray-700 dark:text-yellow-300 hover:text-blue-600">
           {darkMode ? <FaSun /> : <FaMoon />}
         </button>
-        <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="text-gray-700 dark:text-gray-300 hover:text-blue-600" aria-label="Tài khoản người dùng">
+        <button aria-label="Chuyển đổi" onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="text-gray-700 dark:text-gray-300 hover:text-blue-600">
           <FaBars size={20} />
         </button>
       </div>
 
-      {/* Mobile Dropdown Menu */}
       {mobileMenuOpen && (
         <div className="absolute top-16 left-0 w-full bg-white dark:bg-gray-900 border-t px-6 py-4 flex flex-col gap-3 md:hidden z-40 shadow-md">
           <form onSubmit={handleSearch} className="flex items-center border rounded px-2 py-1 dark:bg-gray-800">
@@ -161,7 +170,7 @@ export default function Header() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
-            <button type="submit" className="text-gray-500 hover:text-blue-600 dark:text-gray-300" aria-label="Tài khoản người dùng">
+            <button aria-label="Tìm kiếm" type="submit" className="text-gray-500 hover:text-blue-600 dark:text-gray-300">
               <FaSearch />
             </button>
           </form>
@@ -176,13 +185,11 @@ export default function Header() {
             </>
           ) : (
             <>
-              <Link href="/account" className="text-gray-800 dark:text-gray-200">Tài khoản</Link>
-              <button
-                onClick={handleLogout}
-                className="text-red-500 text-left"
-              >
-                Đăng xuất
-              </button>
+              {role === 'admin' && (
+                <Link href="/admin/dashboard" className="text-gray-800 dark:text-gray-200">Trang quản trị</Link>
+              )}
+              <Link href="/profile" className="text-gray-800 dark:text-gray-200">Tài khoản</Link>
+              <button onClick={handleLogout} className="text-red-500 text-left">Đăng xuất</button>
             </>
           )}
         </div>
